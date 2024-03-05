@@ -10,14 +10,14 @@ class Adventure:
         print("Welcome to Adventure Game!")
         print("You are a scientist on a mission to save the world from a deadly virus.")
         print("You have entered a lab and need to find the cure before it's too late.")
+        while True:
+            self.current_room = self.entry_choices()
 
-        self.current_room = self.entry_choices()
+            if self.current_room == "lab room":
+                self.lab_room_choices()
 
-        if self.current_room == "lab room":
-            self.lab_room_choices()
-
-        if self.current_room == "computer room":
-            self.computer_room_choices()
+            if self.current_room == "computer room":
+                self.computer_room_choices()
 
     def entry_choices(self):
         print("You have three choices to make:")

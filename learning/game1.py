@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" pygame.examples.chimp
+""" inspired by pygame.examples.chimp
 
 This simple example is used for the line-by-line tutorial
 that comes with pygame. It is based on a 'popular' web banner.
@@ -82,7 +82,7 @@ class Fist(pg.sprite.Sprite):
         self.punching = False
 
 
-class Chimp(pg.sprite.Sprite):
+class Budgie(pg.sprite.Sprite):
     """moves a monkey critter across the screen. it can spin the
     monkey when it is punched."""
 
@@ -149,7 +149,7 @@ def main():
     # Put Text On The Background, Centered
     if pg.font:
         font = pg.font.Font(None, 64)
-        text = font.render("Pummel The Chimp, And Win $$$", True, (10, 10, 10))
+        text = font.render("Pummel The Budgie, And Win $$$", True, (10, 10, 10))
         textpos = text.get_rect(centerx=background.get_width() / 2, y=10)
         background.blit(text, textpos)
 
@@ -160,9 +160,9 @@ def main():
     # Prepare Game Objects
     whiff_sound = load_sound("whiff.wav")
     punch_sound = load_sound("punch.wav")
-    chimp = Chimp()
+    budgie = Budgie()
     fist = Fist()
-    allsprites = pg.sprite.RenderPlain((chimp, fist))
+    allsprites = pg.sprite.RenderPlain((budgie, fist))
     clock = pg.time.Clock()
 
     # Main Loop
@@ -177,9 +177,9 @@ def main():
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 going = False
             elif event.type == pg.MOUSEBUTTONDOWN:
-                if fist.punch(chimp):
+                if fist.punch(budgie):
                     punch_sound.play()  # punch
-                    chimp.punched()
+                    budgie.punched()
                 else:
                     whiff_sound.play()  # miss
             elif event.type == pg.MOUSEBUTTONUP:
