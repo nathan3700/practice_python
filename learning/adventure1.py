@@ -21,11 +21,18 @@ class Adventure:
 
     def entry_choices(self):
         print("You have three choices to make:")
+        print("0. Do nothing")
         print("1. Open the left door")
         print("2. Open the right door")
         print("3. Check the cabinets")
-        choice = int(input("Enter your choice: "))
+        choice = 0
+        try:
+            choice = int(input("Enter your choice: "))
+        except ValueError as e:
+            pass
 
+        if choice == 0:
+            return "do nothing"
         if choice == 1:
             return "lab room"
         elif choice == 2:
