@@ -2,7 +2,7 @@
     "python.testing.unittestArgs": [
         "-v",
         "-s",
-        "./scan_chain_model",
+        ".",
         "-p",
         "test*.py"
     ],

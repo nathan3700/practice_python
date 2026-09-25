@@ -2,15 +2,15 @@
 
 ## Purpose
 
-This exercise evaluates verification ability in an ATPG and Design For Test (DFT) context. The emphasis is on understanding a behavioral specification, identifying incorrect assumptions, designing discriminating tests, and modeling observable faults.
+This exercise evaluates general design-verification ability in an ATPG and Design For Test (DFT) context. The emphasis is on understanding a behavioral specification, identifying incorrect assumptions, designing discriminating tests, building an independent checking strategy, and diagnosing observable faults.
 
 DFT knowledge is useful, but the exercise can be completed without prior experience in a commercial ATPG tool.
 
 ## Scenario
 
-You are given a partially implemented Python model of a serial scan chain. A scan chain contains a fixed number of scan cells. During shift operation, one bit enters at the scan input and one bit leaves at the scan output. During capture, a parallel circuit response is loaded into the chain.
+You are given two related artifacts. The first is a parameterized Python model of a serial scan chain. The second is a fixed-size black-box design under test (DUT) with a nominal 20-cell interface. A scan chain contains a fixed number of scan cells. During shift operation, one bit enters at the scan input and one bit leaves at the scan output. During capture, a parallel circuit response is loaded into the chain.
 
-The provided implementation and tests may contain defects. Treat both the implementation and the tests as review material: do not assume that every existing expectation is correct.
+The provided implementation and tests may contain defects. Treat both the implementation and the tests as review material: do not assume that every existing expectation is correct. For the DUT, assume the implementation is a black box: use only its documented public interface and observed behavior. Do not inspect private state or rely on implementation-specific constants.
 
 ## Behavioral Contract
 
@@ -36,14 +36,15 @@ The candidate should state any interpretation they believe is ambiguous before i
 
 The repository contains:
 
-- `scan_chain_model.py`: a partially implemented model with intentional defects.
-- `test_scan_chain.py`: an incomplete test suite containing both useful checks and questionable assumptions.
+- `generic_scan_chain.py`: a partially implemented parameterized model with an optional fault-injection API.
+- `scan_chain_dut_example1.py`: a nominally 20-cell black-box DUT. Its internal implementation is not part of the candidate contract.
+- `test_scan_chain.py`: starter tests containing both useful checks and deliberately questionable expectations.
 
 The candidate may modify the implementation and tests. They should not silently remove a failing test without explaining why its expectation is incorrect.
 
 ## Tasks
 
-### Part 1: Specification and Test Review - 15 minutes
+### Part 1: Generic Model and Test Review - 15 minutes
 
 Review the implementation and existing tests. Document:
 
@@ -56,7 +57,7 @@ At least one finding must distinguish between an actual implementation defect an
 
 ### Part 2: Model Correction - 20 minutes
 
-Update the scan-chain model so that it satisfies the behavioral contract.
+Update the generic scan-chain model so that it satisfies the behavioral contract.
 
 The implementation should include:
 
@@ -69,7 +70,30 @@ The implementation should include:
 
 Keep the public API small and explain any API changes.
 
-### Part 3: Verification and Fault Modeling - 20 minutes
+### Part 2: Black-Box DUT Verification - 30 minutes
+
+The DUT in `scan_chain_dut_example1.py` advertises a fixed scan-chain length of 20. Verify it through public behavior only. Do not inspect its source, private attributes, or undocumented constants.
+
+The problem intentionally does not prescribe how you must predict expected behavior. You may choose one or combine several approaches:
+
+- Hand-derived tests with hard-coded expected shifted-out values.
+- A parameterized reference model based on the behavioral contract.
+- Deterministic pseudo-random stimuli compared with an independently implemented reference model.
+- Property-oriented tests, such as walking-one, walking-zero, alternating, and marker patterns.
+
+Explain why your approach is suitable and what classes of defect it can or cannot detect. A reference model is not automatically independent merely because it is in a different function: avoid copying the DUT's apparent algorithm or reading its internal state.
+
+At minimum, test:
+
+- The advertised 20-cell behavior and capture/shift ordering.
+- A walking-one or equivalent position-sensitive pattern.
+- A pattern containing alternating transitions such as `1010...` and a non-alternating control pattern.
+- Reset, repeated capture, more than 20 shifts, and boundary positions.
+- The first failing observation, with enough information to diagnose the operation and expected versus observed value.
+
+Your tests should fail for at least one observable DUT defect. Do not report a fault merely because an internal state differs; show how it changes public behavior.
+
+### Part 3: Optional DFT Fault Modeling - 20 minutes
 
 Add a small verification-oriented capability. Choose one of the following approaches and document the choice:
 
@@ -132,6 +156,9 @@ At least one test should fail against the original implementation and pass after
 - Are exception behavior and public interfaces clear?
 - Is the reference/checking logic independent enough to catch mirrored implementation bugs?
 - Are tests readable, deterministic, and focused?
+- Does the candidate distinguish a generic model contract from a fixed instance contract?
+- Does the candidate choose useful stimulus rather than relying only on all-zero or all-one patterns?
+- Can the candidate explain what black-box testing cannot prove?
 
 ## Suggested Scoring
 
@@ -143,6 +170,8 @@ Score each category from 0 to 3:
 - Fault-model or reference-checker quality
 - DFT/ATPG reasoning
 - Code clarity and maintainability
+
+For this interview, give the general verification categories more weight than familiarity with a particular ATPG tool. The DFT panel can separately assess commercial ATPG, compression, coverage, and silicon-debug depth.
 
 A strong candidate does not need to complete every extension. Strong signals include identifying an invalid or underspecified requirement, writing a failing test before changing code, and explaining why a proposed test can or cannot detect a particular fault.
 
@@ -157,6 +186,10 @@ Use these questions to probe reasoning without requiring more implementation tim
 5. Which properties would you test for every sequence of shifts, rather than only with a few examples?
 6. How would the approach change for multiple chains with XOR compaction?
 7. What information would you include in a failure report from an ATPG verification environment?
+8. What belongs in the generic scan-chain contract, and what must be specified for the particular 20-cell instance?
+9. Which test would distinguish a 20-cell chain from a 19-cell chain or an off-by-one connection?
+10. Why might a deterministic pseudo-random test detect a defect that an all-zero test misses? What could it still miss?
+11. If a reference model and the DUT agree, what additional evidence would you want before claiming the physical chain is correct?
 
 ## Constraints and Deliverables
 
@@ -164,7 +197,8 @@ The candidate should produce:
 
 1. A short review of defects, ambiguities, and test risks.
 2. A corrected scan-chain implementation.
-3. A focused verification capability using either fault injection or an independent reference model.
-4. Tests that demonstrate both correct behavior and meaningful failure detection.
+3. A documented black-box verification strategy for the fixed 20-cell DUT.
+4. Tests that demonstrate correct behavior and meaningful failure diagnosis.
+5. Optionally, a focused fault-injection or independent-reference capability for the generic model.
 
-The goal is not to build a production ATPG engine. The goal is to demonstrate disciplined verification thinking on a small, understandable DFT model.
+The goal is not to build a production ATPG engine. The goal is to demonstrate disciplined verification thinking on a small, understandable DFT model and on a fixed-size black-box instance. A strong solution may use hard-coded checks, a reference model, constrained random tests, or a hybrid; the candidate must explain the tradeoffs and limitations.

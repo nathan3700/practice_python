@@ -5,8 +5,8 @@ verification environment to identify and correct behavioral defects.
 """
 
 
-class ScanChainDUT:
-    """Small scan-chain DUT with optional stuck-at fault injection."""
+class GenericScanChain:
+    """Parameterized scan-chain model with optional stuck-at injection."""
 
     def __init__(self, length):
         self.length = length

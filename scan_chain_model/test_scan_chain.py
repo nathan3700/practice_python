@@ -4,7 +4,11 @@ Demonstrates bugs in original code.
 """
 
 import unittest
-from scan_chain_model import ScanChain as ScanChain
+
+try:
+    from scan_chain_model import ScanChain
+except ImportError:
+    from scan_chain_model.scan_chain_model import ScanChain
 
 
 class TestImplementation(unittest.TestCase):
